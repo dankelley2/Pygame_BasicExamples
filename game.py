@@ -1,12 +1,13 @@
 import pygame
 import sys
+from customStuff import gameClasses
 
 # Initialize Pygame
 pygame.init()
 
 # Set up some constants
 WIDTH, HEIGHT = 800, 600
-SPEED = 5
+DISTANCE_TO_MOVE = 5
 JUMP_SPEED = 5
 GRAVITY = 0.1
 FPS = 60  # Frames per second
@@ -23,33 +24,58 @@ square = pygame.Rect(WIDTH // 2, HEIGHT // 2, 20, 20)
 # Velocity in y direction
 vy = 0
 
-# Main game loop
+# Game loop variable
 running = True
-while running:
+
+#global list of bullets
+bullets = [] 
+
+
+# Main game loop
+def game_loop():
+    while running:
+        # Process game events
+        run_engine()
+
+        # draw everything
+        draw_game()
+
+        # Limit the frame rate
+        clock.tick(FPS)
+
+
+# Process game events
+def run_engine():
+    global vy
+    global square
+    global running
+    global bullets
+
     # Event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
+            running = False # quit the game when the user clicks the X
+            
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and square.bottom + SPEED >= HEIGHT:
+            if event.key == pygame.K_SPACE and square.bottom >= HEIGHT:
                 vy = -JUMP_SPEED  # Give it an upward speed for jumping
+            if event.key == pygame.K_ESCAPE:
+                running = False # can also quit using escape key
+
         # check for mouse left click
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             # get the position of the mouse
             pos = pygame.mouse.get_pos()
-            # check if the mouse is inside the square
-            if square.collidepoint(pos):
-                # change the color of the square
-                break #square. = (0, 255, 0)
-
+            # create a bullet at the mouse position
+            bullet = gameClasses.Bullet(pos[0], pos[1], 10, (255, 255, 255))
 
     # Get a list of all pressed keys
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_a] and square.left - SPEED > 0:
-        square.x -= SPEED
-    if keys[pygame.K_d] and square.right + SPEED < WIDTH:
-        square.x += SPEED
+    if keys[pygame.K_a] and square.left - DISTANCE_TO_MOVE > 0:
+        square.x -= DISTANCE_TO_MOVE
+    if keys[pygame.K_d] and square.right + DISTANCE_TO_MOVE < WIDTH:
+        square.x += DISTANCE_TO_MOVE
 
     # Add gravity to the y velocity
     vy += GRAVITY
@@ -63,18 +89,36 @@ while running:
         square.y = HEIGHT - square.height
         vy = 0
 
+
+# draw function for the program
+def draw_game():
+    global bullets
+
     # Fill the screen with black
     screen.fill((0, 0, 0))
 
-    # Draw the square
+    # Draw the square (the player)
     pygame.draw.rect(screen, (255, 0, 0), square)
 
-    # Swap buffers
+    for bullet in gameClasses.Bullet.all_bullets:
+        bullet.draw(screen)
+
+    # Swap display buffers
     pygame.display.flip()
 
-    # Limit the frame rate
-    clock.tick(FPS)
 
-# Quit Pygame
-pygame.quit()
-sys.exit()
+# main function for the program
+def main():
+
+    # run game loop function
+    game_loop()
+
+    # Quit Pygame
+    pygame.quit()
+    sys.exit()
+
+
+# create entry point for the program
+if __name__ == "__main__":
+    main()
+
