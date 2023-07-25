@@ -39,6 +39,10 @@ class Drawable:
     def bottom(self):
         return self.rect.bottom
 
+    @property
+    def center(self):
+        return pgm.Vector2(self.rect.centerx, self.rect.centery)
+
     def __init__(self, x, y, width, height, color):
         self.width = width
         self.height = height
