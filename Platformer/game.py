@@ -24,6 +24,14 @@ class GameState:
         self.vy = 0
         self.bullets = []
 
+# function to add wall entities to the game around the edges of the screen
+def add_boundaries(game_state: GameState):
+    # add walls around the edges of the screen
+    entities.Wall(0, 0, game_state.WIDTH, 20, color=(50, 50, 255))
+    entities.Wall(0, 0, 20, game_state.HEIGHT, color=(50, 50, 255))
+    entities.Wall(game_state.WIDTH - 20, 0, 20, game_state.HEIGHT, color=(50, 50, 255))
+    entities.Wall(0, game_state.HEIGHT - 20, game_state.WIDTH, 20, color=(50, 50, 255))
+
 # Main game loop
 def game_loop(game_state: GameState):
     while game_state.running:
@@ -48,7 +56,7 @@ def run_engine(game_state: GameState):
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and (game_state.player.standing or game_state.player.bottom >= game_state.HEIGHT):
                 game_state.player.standing = False
-                game_state.player.add_velocity(vx= 0, vy= -game_state.JUMP_SPEED)  # Give it an upward speed for jumping
+                game_state.player.set_velocity(vy= -game_state.JUMP_SPEED)  # Give it an upward speed for jumping
             if event.key == pygame.K_ESCAPE:
                 game_state.running = False # can also quit using escape key
 
@@ -68,16 +76,14 @@ def run_engine(game_state: GameState):
         game_state.player.move_by(dx= game_state.mvmt_delta, dy=0)
 
     # Add gravity to the y velocity
-    # but only if the player is not standing on a wall
-    if not game_state.player.standing:
-        game_state.player.vy += game_state.GRAVITY
+    game_state.player.add_velocity(0, game_state.GRAVITY)
 
     # step the physical objects
     for obj in entities.Physical.all_objects:
         obj.step()
-        collisions = physics.generate_collision_pairs(entities.Physical.all_objects)
-        if len(collisions) > 0:
-            physics.resolve_collision_pairs(collisions)
+        collision_manifolds = physics.generate_collision_pairs(entities.Physical.all_objects)
+        if len(collision_manifolds) > 0:
+            physics.resolve_collision_pairs(collision_manifolds)
 
     # generate collision pairs for the physical objects
 
@@ -116,6 +122,9 @@ def main():
     # create game state object at start of program
     game_state = GameState()
 
+    # add boundaries to the game
+    add_boundaries(game_state)
+    
     # run game loop function, pass game state object as parameter/argument
     game_loop(game_state)
 
