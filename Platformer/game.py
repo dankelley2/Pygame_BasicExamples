@@ -17,20 +17,20 @@ class GameState:
         self.FPS = 60
 
         # other setup stuff, will move this to a function later
-        self.mvmt_delta = 3
-        self.JUMP_SPEED = 3
+        self.mvmt_delta = 1.5
+        self.JUMP_SPEED = 3.0
         self.GRAVITY = 0.1
-        self.player =  entities.Player(self.WIDTH // 2, self.HEIGHT // 2, 20, 20, color=(255, 50, 50))
+        self.player =  entities.Player(self.WIDTH // 2, 50, 20, 20, color=(255, 50, 50))
         self.vy = 0
         self.bullets = []
 
 # function to add wall entities to the game around the edges of the screen
 def add_boundaries(game_state: GameState):
     # add walls around the edges of the screen
-    entities.Wall(0, 0, game_state.WIDTH, 20, color=(50, 50, 255))
-    entities.Wall(0, 0, 20, game_state.HEIGHT, color=(50, 50, 255))
-    entities.Wall(game_state.WIDTH - 20, 0, 20, game_state.HEIGHT, color=(50, 50, 255))
-    entities.Wall(0, game_state.HEIGHT - 20, game_state.WIDTH, 20, color=(50, 50, 255))
+    entities.Wall(0, 0, game_state.WIDTH, 20, color=(50, 50, 200))
+    entities.Wall(0, 0, 20, game_state.HEIGHT, color=(50, 50, 200))
+    entities.Wall(game_state.WIDTH - 20, 0, 20, game_state.HEIGHT, color=(50, 50, 200))
+    entities.Wall(0, game_state.HEIGHT - 20, game_state.WIDTH, 20, color=(50, 50, 200))
 
 # Main game loop
 def game_loop(game_state: GameState):
@@ -47,8 +47,7 @@ def game_loop(game_state: GameState):
 
 # Process game events
 def run_engine(game_state: GameState):
-
-    # Event loop
+    # Event handling (Conrols etc)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_state.running = False # quit the game when the user clicks the X
@@ -66,35 +65,28 @@ def run_engine(game_state: GameState):
             pos = pygame.mouse.get_pos()
             # create a wall at the mouse position snapped to the nearest 20x20 grid
             entities.Wall(pos[0] - pos[0] % 20, pos[1] - pos[1] % 20, 20, 20, color=(50, 50, 255))
+            entities.Wall.try_merge_walls()
 
     # Get a list of all pressed keys
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_a] and game_state.player.left - game_state.mvmt_delta > 0:
-        game_state.player.move_by(dx= -game_state.mvmt_delta, dy=0)
-    if keys[pygame.K_d] and game_state.player.right + game_state.mvmt_delta < game_state.WIDTH:
-        game_state.player.move_by(dx= game_state.mvmt_delta, dy=0)
+    if keys[pygame.K_a] and game_state.player.velocity.x > -3:
+        game_state.player.add_velocity(vx= -game_state.mvmt_delta, vy=0)
+    if keys[pygame.K_d] and game_state.player.velocity.x < 3:
+        game_state.player.add_velocity(vx= game_state.mvmt_delta, vy=0)
+    #End Controls
 
-    # Add gravity to the y velocity
-    game_state.player.add_velocity(0, game_state.GRAVITY)
-
-    # step the physical objects
+    # Run physics Simulation
     for obj in entities.Physical.all_objects:
+        # add gravity to all objects
+        if not obj.locked:
+            obj.add_velocity(0, game_state.GRAVITY)
+        # move all objects
         obj.step()
+        # Check for and resolve collisions
         collision_manifolds = physics.generate_collision_pairs(entities.Physical.all_objects)
         if len(collision_manifolds) > 0:
             physics.resolve_collision_pairs(collision_manifolds)
-
-    # generate collision pairs for the physical objects
-
-
-    # Add velocity to y position (with bounds checking)
-    if game_state.player.y < 0:  # Hitting the top of the screen
-        game_state.player.y = 0
-        game_state.player.vy = 0
-    elif game_state.player.y > game_state.HEIGHT - game_state.player.height:  # Hitting the bottom of the screen
-        game_state.player.y = game_state.HEIGHT - game_state.player.height
-        game_state.player.vy = 0
 
 
 # draw function for the program
@@ -124,7 +116,7 @@ def main():
 
     # add boundaries to the game
     add_boundaries(game_state)
-    
+
     # run game loop function, pass game state object as parameter/argument
     game_loop(game_state)
 
