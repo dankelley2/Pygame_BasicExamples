@@ -1,6 +1,6 @@
 import pygame
 import sys
-from customStuff import gameClasses, physics
+from classes import entities, physics
 
 class GameState:
     def __init__(self):
@@ -20,7 +20,7 @@ class GameState:
         self.mvmt_delta = 3
         self.JUMP_SPEED = 3
         self.GRAVITY = 0.1
-        self.player =  gameClasses.Player(self.WIDTH // 2, self.HEIGHT // 2, 20, 20, color=(255, 50, 50))
+        self.player =  entities.Player(self.WIDTH // 2, self.HEIGHT // 2, 20, 20, color=(255, 50, 50))
         self.vy = 0
         self.bullets = []
 
@@ -57,7 +57,7 @@ def run_engine(game_state: GameState):
             # get the position of the mouse
             pos = pygame.mouse.get_pos()
             # create a wall at the mouse position snapped to the nearest 20x20 grid
-            gameClasses.Wall(pos[0] - pos[0] % 20, pos[1] - pos[1] % 20, 20, 20, color=(50, 50, 255))
+            entities.Wall(pos[0] - pos[0] % 20, pos[1] - pos[1] % 20, 20, 20, color=(50, 50, 255))
 
     # Get a list of all pressed keys
     keys = pygame.key.get_pressed()
@@ -73,9 +73,9 @@ def run_engine(game_state: GameState):
         game_state.player.vy += game_state.GRAVITY
 
     # step the physical objects
-    for obj in gameClasses.Physical.all_objects:
+    for obj in entities.Physical.all_objects:
         obj.step()
-        collisions = physics.generate_collision_pairs(gameClasses.Physical.all_objects)
+        collisions = physics.generate_collision_pairs(entities.Physical.all_objects)
         if len(collisions) > 0:
             physics.resolve_collision_pairs(collisions)
 
@@ -99,7 +99,7 @@ def draw_game(game_state: GameState):
     game_state.screen.fill((0, 0, 0))
 
     # Draw the physics objects
-    for obj in gameClasses.Physical.all_objects:
+    for obj in entities.Physical.all_objects:
         obj.draw(game_state.screen)
 
     # Draw the bullets
