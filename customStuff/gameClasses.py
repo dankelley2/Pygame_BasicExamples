@@ -98,7 +98,9 @@ class Physical(Drawable):
     def resolve_collision(self, other):
 
         # Padding amount for resolving collisions. This is to prevent objects from getting stuck inside each other
-        PADDING = 0.01
+        PADDING = 0
+
+        MULT = 1
         # Create vectors for the objects' positions
         obj1_pos = pgm.Vector2(self.x, self.y)
         obj2_pos = pgm.Vector2(other.x, other.y)
@@ -113,6 +115,8 @@ class Physical(Drawable):
         # Find the overlap between the two rectangles along the collision vector
         overlap = abs(collision_vector.length() - (self.width / 2) - (other.width / 2))
 
+        # TODO: Need to fix rect rect collision, and find overlap based on the distance between the closest two walls, instead of distance from center to center
+
         # Snap the collision vector to the nearest 90 degrees
         if abs(collision_vector.x) > abs(collision_vector.y):
             collision_vector.y = 0
@@ -125,14 +129,14 @@ class Physical(Drawable):
         # Check the masses of the objects and move them accordingly
         if self.mass > 0 and other.mass > 0:
             # Move both objects backwards along the collision vector by 50% of the overlap amount
-            self.move_by(-collision_vector.x * (overlap / 2 + PADDING), -collision_vector.y * (overlap / 2 + PADDING))
-            other.move_by(collision_vector.x * (overlap / 2 + PADDING), collision_vector.y * (overlap / 2 + PADDING))
+            self.move_by(-collision_vector.x * (overlap / 2 + PADDING) * MULT, -collision_vector.y * (overlap / 2 + PADDING) * MULT)
+            other.move_by(collision_vector.x * (overlap / 2 + PADDING) * MULT, collision_vector.y * (overlap / 2 + PADDING) * MULT)
         elif self.mass > 0:
             # Move self backwards along the collision vector by the full overlap amount
-            self.move_by(-collision_vector.x * (overlap + PADDING), -collision_vector.y * (overlap + PADDING))
+            self.move_by(-collision_vector.x * (overlap + PADDING) * MULT, -collision_vector.y * (overlap + PADDING) * MULT)
         elif other.mass > 0:
             # Move other backwards along the collision vector by the full overlap amount
-            other.move_by(collision_vector.x * (overlap + PADDING), collision_vector.y * (overlap + PADDING))
+            other.move_by(collision_vector.x * (overlap + PADDING) * MULT, collision_vector.y * (overlap + PADDING) * MULT)
         
         # resolve the collision effects within the class
         self.resolve_collision_effects(other, collision_vector)

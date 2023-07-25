@@ -8,6 +8,8 @@ def generate_collision_pairs(list_of_objects):
     # Use combinations to get all possible pairs from all_objects
     for obj1, obj2 in combinations(list_of_objects, 2):
         if obj1.rect.colliderect(obj2.rect):  # Check if rectangles collide
+            if obj1.mass == 0 and obj2.mass == 0:  # If both objects are static, skip
+                continue
             collision_pairs.append((obj1, obj2))  # If they collide, add them as a pair
 
     return collision_pairs
