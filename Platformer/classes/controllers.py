@@ -1,4 +1,3 @@
-import pygame
 from . import entities
 
 # input class that represents the input state of the game for a character controller
@@ -13,22 +12,22 @@ class Input:
 class CharacterController:
     def __init__(self, player: entities.Player):
         self.player = player
-        self.move_delta_velocity = 1.5
-        self.jump_velocity = 3.0
+        self.move_delta_velocity = 1.0
+        self.jump_velocity = 4.0
 
     # handle input for the player
     def handle_input(self, input: Input):
 
         # Left and Right Movement
-        if input.left and self.player.velocity.x > -3:
+        if input.left and self.player.velocity.x > -2:
             self.player.add_velocity(vx= -self.move_delta_velocity, vy=0)
-        if input.right and self.player.velocity.x < 3:
+        if input.right and self.player.velocity.x < 2:
             self.player.add_velocity(vx= self.move_delta_velocity, vy=0)
 
         # Jump
         if input.jump and self.player.standing:
             self.player.standing = False
-            self.player.add_velocity(vx=0, vy= -self.jump_velocity)
+            self.player.set_velocity(vy= -self.jump_velocity)
         #End Controls
 
     # run the character controller

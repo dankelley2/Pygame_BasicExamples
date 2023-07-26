@@ -86,12 +86,14 @@ class Physical(Drawable):
     # collision_handler is a function that takes in a collision object and handles the collision
     def step(self):
         self.move_by(self.velocity.x, self.velocity.y)
-        self.velocity.x *= 0.9
+        self.velocity.x *= 0.8
 
     # add velocity
-    def add_velocity(self, vx, vy):
-        self.velocity.x += vx
-        self.velocity.y += vy
+    def add_velocity(self, vx=None, vy=None):
+        if vx is not None:
+            self.velocity.x += vx
+        if vy is not None:   
+            self.velocity.y += vy
 
     # add velocity
     def set_velocity(self, vx=None, vy=None):
@@ -109,20 +111,6 @@ class Physical(Drawable):
         pass
 
 
-
-# class that represents a bullet in pygame
-# It has an initial size, keeps track of it's circle object, and has a draw method
-# This class inherits from Drawable, which is an example of polymorphism
-class Bullet(Drawable):
-
-    def __init__(self, x, y, r, color):
-        super().__init__(x, y, r, r, color)
-    
-    # draw the bullet, this overrides the draw method in Drawable
-    def draw(self, screen):
-        pygame.draw.ellipse(screen, self.color, self.rect)
-
-
 # player class that represents the player in the game
 # This class inherits from Drawable, which is an example of polymorphism
 class Player(Physical):
@@ -137,7 +125,7 @@ class Player(Physical):
         # if the other object is a wall
         if isinstance(other, Wall):
             # if the collision vector is pointing up, set the y velocity to 0, and standing to true
-            if collision_vector.y > 0 and not self.standing:
+            if collision_vector.y == 1.0 and not self.standing:
                 self.vy = 0
                 self.standing = True
         

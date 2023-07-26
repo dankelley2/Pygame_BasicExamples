@@ -17,7 +17,7 @@ class GameState:
         self.FPS = 60
 
         # other setup stuff, will move this to a function later
-        self.GRAVITY = 0.1
+        self.GRAVITY = 0.25
         player =  entities.Player(self.WIDTH // 2, 50, 20, 20, color=(255, 50, 50))
         self.character_controller = controllers.CharacterController(player)
         self.bullets = []
@@ -34,8 +34,8 @@ def add_boundaries(game_state: GameState):
     entities.Wall(game_state.WIDTH // 4, game_state.HEIGHT // 2, game_state.WIDTH // 2, 20, color=(50, 50, 200))
 
     # make 20x20 walls in a staircase pattern
-    for i in range(10):
-        entities.Wall(20 + i * 20, 20 + i * 20, 20, 20, color=(50, 50, 200))
+    for i in range(20):
+        entities.Wall(10 + i * 10, 10 + i * 10, 10, 10, color=(50, 50, 200))
 
 # Main game loop
 def game_loop(game_state: GameState):
