@@ -122,6 +122,7 @@ class Bullet(Drawable):
     def draw(self, screen):
         pygame.draw.ellipse(screen, self.color, self.rect)
 
+
 # player class that represents the player in the game
 # This class inherits from Drawable, which is an example of polymorphism
 class Player(Physical):
@@ -144,6 +145,7 @@ class Player(Physical):
     def draw(self, screen):
         # draw an ellipse with pygame
         pygame.draw.ellipse(screen, self.color, self.rect)
+
 
 # wall class that represents a wall in the game
 class Wall(Physical):

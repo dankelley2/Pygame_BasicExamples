@@ -1,6 +1,6 @@
 import pygame
 import sys
-from classes import entities, physics
+from classes import entities, physics, controllers
 
 class GameState:
     def __init__(self):
@@ -17,11 +17,9 @@ class GameState:
         self.FPS = 60
 
         # other setup stuff, will move this to a function later
-        self.mvmt_delta = 1.5
-        self.JUMP_SPEED = 3.0
         self.GRAVITY = 0.1
-        self.player =  entities.Player(self.WIDTH // 2, 50, 20, 20, color=(255, 50, 50))
-        self.vy = 0
+        player =  entities.Player(self.WIDTH // 2, 50, 20, 20, color=(255, 50, 50))
+        self.character_controller = controllers.CharacterController(player)
         self.bullets = []
 
 # function to add wall entities to the game around the edges of the screen
@@ -54,15 +52,18 @@ def game_loop(game_state: GameState):
 
 # Process game events
 def run_engine(game_state: GameState):
+
+    # Set up character controller input object
+    game_state.input = controllers.Input()
+
     # Event handling (Conrols etc)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_state.running = False # quit the game when the user clicks the X
             
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and (game_state.player.standing or game_state.player.bottom >= game_state.HEIGHT):
-                game_state.player.standing = False
-                game_state.player.set_velocity(vy= -game_state.JUMP_SPEED)  # Give it an upward speed for jumping
+            if event.key == pygame.K_SPACE:
+                game_state.input.jump = True
             if event.key == pygame.K_ESCAPE:
                 game_state.running = False # can also quit using escape key
 
@@ -77,11 +78,13 @@ def run_engine(game_state: GameState):
     # Get a list of all pressed keys
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_a] and game_state.player.velocity.x > -3:
-        game_state.player.add_velocity(vx= -game_state.mvmt_delta, vy=0)
-    if keys[pygame.K_d] and game_state.player.velocity.x < 3:
-        game_state.player.add_velocity(vx= game_state.mvmt_delta, vy=0)
-    #End Controls
+    if keys[pygame.K_a]:
+        game_state.input.left = True
+    if keys[pygame.K_d]:
+        game_state.input.right = True
+    
+    # Run character controller
+    game_state.character_controller.set_input(game_state.input)
 
     # Run physics Simulation
     for obj in entities.Physical.all_objects:
