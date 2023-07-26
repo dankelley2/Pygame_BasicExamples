@@ -32,6 +32,13 @@ def add_boundaries(game_state: GameState):
     entities.Wall(game_state.WIDTH - 20, 0, 20, game_state.HEIGHT, color=(50, 50, 200))
     entities.Wall(0, game_state.HEIGHT - 20, game_state.WIDTH, 20, color=(50, 50, 200))
 
+    # make a wall that spans half the screen horizontally
+    entities.Wall(game_state.WIDTH // 4, game_state.HEIGHT // 2, game_state.WIDTH // 2, 20, color=(50, 50, 200))
+
+    # make 20x20 walls in a staircase pattern
+    for i in range(10):
+        entities.Wall(20 + i * 20, 20 + i * 20, 20, 20, color=(50, 50, 200))
+
 # Main game loop
 def game_loop(game_state: GameState):
     while game_state.running:
