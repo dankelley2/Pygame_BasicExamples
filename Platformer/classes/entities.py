@@ -73,7 +73,7 @@ class Physical(Drawable):
 
     all_objects=[]
 
-    def __init__(self, x, y, width, height, color, vx, vy):
+    def __init__(self, x, y, width, height, color, vx=0, vy=0):
         super().__init__(x, y, width, height, color)
         self.mass = width * height
         self.imass = 1 / self.mass
@@ -110,6 +110,11 @@ class Physical(Drawable):
     def hit_by(self, other, collision_vector: pgm.Vector2):
         pass
 
+# Goal class that represents the goal in the game
+class Goal(Physical):
+    def __init__(self, x, y, width=40, height=80, color=(255,255,255)):
+        super().__init__(x, y, width, height, color)
+        self.locked = True
 
 # player class that represents the player in the game
 # This class inherits from Drawable, which is an example of polymorphism
@@ -120,6 +125,8 @@ class Player(Physical):
         self.standing = False
         self.mass = math.pi * (width / 2) ** 2
         self.imass = 1 / self.mass
+        self.score = 0
+        self.health = 100
 
     def hit_by(self, other, collision_vector: pgm.Vector2):
         # if the other object is a wall
@@ -128,6 +135,11 @@ class Player(Physical):
             if collision_vector.y == 1.0 and not self.standing:
                 self.vy = 0
                 self.standing = True
+
+        if isinstance(other, Goal):
+            # if the collision vector is pointing up, set the y velocity to 0, and standing to true
+            self.score += 1
+            other.destroy()
         
     # draw the object
     def draw(self, screen):
